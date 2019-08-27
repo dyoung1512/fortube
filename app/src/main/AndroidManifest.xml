@@ -10,8 +10,8 @@
                  android:roundIcon="@mipmap/ic_launcher_round"
                  android:supportsRtl="true"
                  android:theme="@style/AppTheme"
-                 android:name=".BaseApplication">
-        <meta-data android:name="com.kakao.sdk.AppKey" android:value="e2eb1f3ced9e6c1714d5870f5c814915"/>
+                 android:name=".base.BaseApplication">
+        <meta-data android:name="com.kakao.sdk.AppKey" android:value="@string/map_key"/>
         <activity android:name=".MainActivity"
                   android:configChanges="orientation">
             <intent-filter>
