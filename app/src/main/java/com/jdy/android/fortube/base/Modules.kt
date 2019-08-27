@@ -24,7 +24,7 @@ val apiModule = module {
             readTimeout(5000, TimeUnit.MILLISECONDS)
             addInterceptor(Interceptor {
                 it.proceed(it.request().newBuilder().apply {
-                    header("Authorization", "KakaoAK ${androidApplication().resources.getString(R.string.map_key)}")
+                    header("Authorization", "KakaoAK ${androidApplication().resources.getString(R.string.rest_key)}")
                 }.build())
             })
             if (BuildConfig.DEBUG) {
@@ -53,5 +53,5 @@ val prefModule = module {
     }
 }
 val vmModule = module {
-    viewModel { MapViewModel() }
+    viewModel { MapViewModel(get()) }
 }

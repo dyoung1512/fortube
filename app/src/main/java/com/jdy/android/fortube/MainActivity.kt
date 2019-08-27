@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
 import com.google.android.material.appbar.AppBarLayout
 import com.jdy.android.fortube.base.PrefHelper
 import com.jdy.android.fortube.map.MapViewModel
@@ -22,6 +23,7 @@ import org.koin.android.viewmodel.ext.android.viewModel
 class MainActivity: AppCompatActivity() {
     companion object {
         const val REQ_LOCATION_PERMISSION = 1512
+        const val REQ_APP_SETTINGS = 1513
     }
     private val mMapViewModel: MapViewModel by viewModel()
     private val mPrefHelper: PrefHelper by inject()
@@ -32,10 +34,18 @@ class MainActivity: AppCompatActivity() {
 
         map_view.setMapViewModel(mMapViewModel)
 
+        observeMapData()
         disableAppbarBehavior()
+
         if (checkLocationPermissions()) {
-            map_view.startLocationTracking()
+            map_view.setCurrentLocation()
         }
+    }
+
+    private fun observeMapData() {
+        mMapViewModel.mapData.observe(this, Observer { map ->
+            map_view.addMarkerList(map.documents)
+        })
     }
 
     private fun disableAppbarBehavior() {
@@ -63,7 +73,7 @@ class MainActivity: AppCompatActivity() {
                         startActivityForResult(Intent().apply {
                             action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
                             data = Uri.fromParts("package", packageName, null)
-                        }, REQ_LOCATION_PERMISSION)
+                        }, REQ_APP_SETTINGS)
                         dialog.dismiss()
                     }
                     .create()
@@ -78,20 +88,10 @@ class MainActivity: AppCompatActivity() {
         return true
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQ_LOCATION_PERMISSION) {
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                map_view.startLocationTracking()
-            }
-        }
-    }
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQ_LOCATION_PERMISSION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                map_view.startLocationTracking()
+                map_view.setCurrentLocation()
             } else if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
                 mPrefHelper.denyShowPermissionPopup()
@@ -99,15 +99,13 @@ class MainActivity: AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQ_APP_SETTINGS) {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                map_view.setCurrentLocation()
+            }
+        }
     }
 }

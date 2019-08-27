@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">fortube</string>
     <string name="map_key">e2eb1f3ced9e6c1714d5870f5c814915</string>
+    <string name="rest_key">f9f5ee739cc5b9d7afc767704aff32e7</string>
     <string name="map_api">https://dapi.kakao.com</string>
 
     <!-- Button -->
