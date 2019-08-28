@@ -111,6 +111,6 @@ class MarkerMapView(context: Context, attrs: AttributeSet): MapView(context, att
         currentLocationTrackingMode = CurrentLocationTrackingMode.TrackingModeOff
         mLastLocation.latitude = point.mapPointGeoCoord.latitude
         mLastLocation.longitude = point.mapPointGeoCoord.longitude
-        setMapCenterPoint(point, true)
+        setMapCenterPointAndZoomLevel(point, 4, true)
     }
 }

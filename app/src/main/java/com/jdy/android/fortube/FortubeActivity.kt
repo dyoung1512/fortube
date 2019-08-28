@@ -22,7 +22,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
-class MainActivity: AppCompatActivity() {
+class FortubeActivity: AppCompatActivity() {
     companion object {
         const val REQ_LOCATION_PERMISSION = 1512
         const val REQ_APP_SETTINGS = 1513
@@ -141,7 +141,8 @@ class MainActivity: AppCompatActivity() {
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
                 // 권한요청 다시 보지 않기 체크
                 mPrefHelper.denyShowPermissionPopup()
-            }
+                map_view.refresh()
+            } else map_view.refresh()
         }
     }
 
