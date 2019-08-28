@@ -12,11 +12,12 @@ class MapViewModel(private val mMapService: MapService): ViewModel() {
         const val CD_CATEGORY_OIL = "OL7"
         const val CD_CATEGORY_HOSPITAL = "HP8"
         const val CD_CATEGORY_PHARMACY = "PM9"
+        const val STATE_CATEGORY_EMPTY = 0
         const val STATE_CATEGORY_OIL = 1
         const val STATE_CATEGORY_HOSPITAL = 2
         const val STATE_CATEGORY_PHARMACY = 4
     }
-    private var mCategoryState = STATE_CATEGORY_OIL or STATE_CATEGORY_HOSPITAL or STATE_CATEGORY_PHARMACY
+    private var mCategoryState = STATE_CATEGORY_EMPTY
     private var mDisposable = CompositeDisposable()
 
     var mapData = MutableLiveData<MapModel>()
@@ -35,14 +36,10 @@ class MapViewModel(private val mMapService: MapService): ViewModel() {
             ))
     }
 
+    fun setCategoryState(state: Int) { mCategoryState = state }
     fun setCategoryOil(set: Boolean) = setCategoryState(set, STATE_CATEGORY_OIL)
     fun setCategoryHospital(set: Boolean) = setCategoryState(set, STATE_CATEGORY_HOSPITAL)
     fun setCategoryPharmacy(set: Boolean) = setCategoryState(set, STATE_CATEGORY_PHARMACY)
-
-    private fun hasCategoryOil() = mCategoryState and STATE_CATEGORY_OIL == STATE_CATEGORY_OIL
-    private fun hasCategoryHospital() = mCategoryState and STATE_CATEGORY_HOSPITAL == STATE_CATEGORY_HOSPITAL
-    private fun hasCategoryPharmacy() = mCategoryState and STATE_CATEGORY_PHARMACY == STATE_CATEGORY_PHARMACY
-
     private fun setCategoryState(set: Boolean, category: Int) {
         mCategoryState = when (set) {
             true -> mCategoryState or category
@@ -65,6 +62,10 @@ class MapViewModel(private val mMapService: MapService): ViewModel() {
             }
         }.toString()
     }
+    fun isCategoryEmpty() = mCategoryState == STATE_CATEGORY_EMPTY
+    private fun hasCategoryOil() = mCategoryState and STATE_CATEGORY_OIL == STATE_CATEGORY_OIL
+    private fun hasCategoryHospital() = mCategoryState and STATE_CATEGORY_HOSPITAL == STATE_CATEGORY_HOSPITAL
+    private fun hasCategoryPharmacy() = mCategoryState and STATE_CATEGORY_PHARMACY == STATE_CATEGORY_PHARMACY
 
     override fun onCleared() {
         super.onCleared()

@@ -21,6 +21,52 @@
                     android:layout_height="300dp"
                     app:layout_collapseMode="parallax"
                     app:layout_collapseParallaxMultiplier="1"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/map_refresh_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_gravity="center_horizontal"
+                    android:visibility="gone"
+                    style="@style/MapCategoryRefreshBtn"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/category_pharmacy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/map_category_pharmacy"
+                        style="@style/MapCategoryText"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/category_hospital"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:text="@string/map_category_hospital"
+                        style="@style/MapCategoryText"
+                        app:layout_constraintEnd_toStartOf="@+id/category_pharmacy"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/category_oil"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:text="@string/map_category_oil"
+                        style="@style/MapCategoryText"
+                        app:layout_constraintEnd_toStartOf="@+id/category_hospital"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 

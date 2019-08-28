@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import android.view.ViewTreeObserver
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +17,7 @@ import androidx.lifecycle.Observer
 import com.google.android.material.appbar.AppBarLayout
 import com.jdy.android.fortube.base.PrefHelper
 import com.jdy.android.fortube.map.MapViewModel
+import com.jdy.android.fortube.map.MarkerMapView
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -32,22 +34,57 @@ class MainActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        map_view.setMapViewModel(mMapViewModel)
+        init()
+
+        setUIEventListener()
 
         observeMapData()
-        disableAppbarBehavior()
 
         if (checkLocationPermissions()) {
             map_view.setCurrentLocation()
         }
     }
 
-    private fun observeMapData() {
-        mMapViewModel.mapData.observe(this, Observer { map ->
-            map_view.addMarkerList(map.documents)
-        })
+    private fun init() {
+        map_view.setMapViewModel(mMapViewModel)
+        category_oil.isSelected = true
+        category_hospital.isSelected = true
+        category_pharmacy.isSelected = true
+        mMapViewModel.setCategoryState(
+            MapViewModel.STATE_CATEGORY_OIL
+                or MapViewModel.STATE_CATEGORY_HOSPITAL
+                or MapViewModel.STATE_CATEGORY_PHARMACY)
     }
 
+    private fun setUIEventListener() {
+        map_view.setOnAllowMapRefreshListener(object: MarkerMapView.OnAllowMapRefreshListener {
+            override fun allowRefresh() {
+                map_refresh_btn.visibility = View.VISIBLE
+            }
+        })
+        map_refresh_btn.setOnClickListener {
+            map_refresh_btn.visibility = View.GONE
+            map_view.refresh()
+        }
+        category_oil.setOnClickListener {
+            it.isSelected = !it.isSelected
+            mMapViewModel.setCategoryOil(it.isSelected)
+            map_view.refresh()
+        }
+        category_hospital.setOnClickListener {
+            it.isSelected = !it.isSelected
+            mMapViewModel.setCategoryHospital(it.isSelected)
+            map_view.refresh()
+        }
+        category_pharmacy.setOnClickListener {
+            it.isSelected = !it.isSelected
+            mMapViewModel.setCategoryPharmacy(it.isSelected)
+            map_view.refresh()
+        }
+        disableAppbarBehavior()
+    }
+
+    // 앱바 맵 영역 드래그 이벤트 차단
     private fun disableAppbarBehavior() {
         appbar.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
@@ -62,10 +99,18 @@ class MainActivity: AppCompatActivity() {
         })
     }
 
+    private fun observeMapData() {
+        mMapViewModel.mapData.observe(this, Observer { mapModel ->
+            map_view.addMarkerList(mapModel.documents)
+
+        })
+    }
+
     private fun checkLocationPermissions(): Boolean {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (mPrefHelper.isDeniedShowPermissionPopup()) {
+                // 권한요청 다시 보지 않기 체크된 상태
                 AlertDialog.Builder(this)
                     .setTitle(getString(R.string.permission_location_title))
                     .setMessage(getString(R.string.permission_location_message))
@@ -94,6 +139,7 @@ class MainActivity: AppCompatActivity() {
                 map_view.setCurrentLocation()
             } else if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // 권한요청 다시 보지 않기 체크
                 mPrefHelper.denyShowPermissionPopup()
             }
         }

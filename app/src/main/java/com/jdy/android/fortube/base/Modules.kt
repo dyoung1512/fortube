@@ -1,7 +1,6 @@
 package com.jdy.android.fortube.base
 
 import android.app.Activity
-import android.content.SharedPreferences
 import com.jdy.android.fortube.BuildConfig
 import com.jdy.android.fortube.R
 import com.jdy.android.fortube.map.MapService

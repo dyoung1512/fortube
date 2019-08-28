@@ -1,18 +1,33 @@
 package com.jdy.android.fortube.map
 
 import android.content.Context
+import android.location.Location
 import android.util.AttributeSet
-import android.util.Log
 import com.jdy.android.fortube.R
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
 
 class MarkerMapView(context: Context, attrs: AttributeSet): MapView(context, attrs), MarkerMapViewEventListener {
+    companion object {
+        const val MAP_CURRENT_LOCATION_DIFF = 50   // meters
+    }
     private lateinit var mMapViewModel: MapViewModel
+    private var mAllowMapRefreshListener: OnAllowMapRefreshListener? = null
+    private var mIsCenterPointMoved = false
+    private var mLastLocation = Location("")
+
+    @FunctionalInterface
+    interface OnAllowMapRefreshListener {
+        fun allowRefresh()
+    }
 
     fun setMapViewModel(mapViewModel: MapViewModel) {
         mMapViewModel = mapViewModel
+    }
+
+    fun setOnAllowMapRefreshListener(listener: OnAllowMapRefreshListener) {
+        mAllowMapRefreshListener = listener
     }
 
     override fun onFinishInflate() {
@@ -33,7 +48,11 @@ class MarkerMapView(context: Context, attrs: AttributeSet): MapView(context, att
     }
 
     fun refresh() {
-        mMapViewModel.searchMapAreas(mapCenterPoint.mapPointGeoCoord)
+        if (!mMapViewModel.isCategoryEmpty()) {
+            mMapViewModel.searchMapAreas(mapCenterPoint.mapPointGeoCoord)
+        } else if (poiItems.isNotEmpty()) {
+            removeAllPOIItems()
+        }
     }
 
     fun addMarkerList(documents: List<MapDocument>) {
@@ -60,28 +79,38 @@ class MarkerMapView(context: Context, attrs: AttributeSet): MapView(context, att
     }
 
     override fun onMapViewInitialized(mapView: MapView) {
-        Log.d("MarkerMapView", "onMapViewInitialized")
-        Log.i("MarkerMapView", "mapCenterPoint (${mapCenterPoint.mapPointGeoCoord.latitude}, ${mapCenterPoint.mapPointGeoCoord.longitude})")
+        mLastLocation.latitude = mapCenterPoint.mapPointGeoCoord.latitude
+        mLastLocation.longitude = mapCenterPoint.mapPointGeoCoord.longitude
     }
 
     override fun onMapViewMoveFinished(mapView: MapView, point: MapPoint) {
-        Log.i("MarkerMapView", "onMapViewMoveFinished (${point.mapPointGeoCoord.latitude}, ${point.mapPointGeoCoord.longitude})")
         if (poiItems.isEmpty()) {
             refresh()
+        }
+        val curLocation = Location("").apply {
+            latitude = point.mapPointGeoCoord.latitude
+            longitude = point.mapPointGeoCoord.longitude
+        }
+        if (mIsCenterPointMoved && mLastLocation.distanceTo(curLocation) > MAP_CURRENT_LOCATION_DIFF) {
+            mIsCenterPointMoved = false
+            mLastLocation = curLocation
+            mAllowMapRefreshListener?.allowRefresh()
         }
     }
 
     override fun onMapViewCenterPointMoved(mapView: MapView, point: MapPoint) {
-        Log.i("MarkerMapView", "onMapViewCenterPointMoved (${point.mapPointGeoCoord.latitude}, ${point.mapPointGeoCoord.longitude})")
+        mIsCenterPointMoved = true
     }
 
     override fun onPOIItemSelected(mapView: MapView, item: MapPOIItem) {
+        mIsCenterPointMoved = true
         setMapCenterPoint(item.mapPoint, true)
     }
 
     override fun onCurrentLocationUpdate(mapView: MapView, point: MapPoint, accuracyInMeters: Float) {
-        Log.w("MarkerMapView", "onCurrentLocationUpdate [(${point.mapPointGeoCoord.latitude}, ${point.mapPointGeoCoord.longitude}) - $accuracyInMeters]")
         currentLocationTrackingMode = CurrentLocationTrackingMode.TrackingModeOff
+        mLastLocation.latitude = point.mapPointGeoCoord.latitude
+        mLastLocation.longitude = point.mapPointGeoCoord.longitude
         setMapCenterPoint(point, true)
     }
 }

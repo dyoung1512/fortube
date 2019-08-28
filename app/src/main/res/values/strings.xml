@@ -7,9 +7,15 @@
     <!-- Button -->
     <string name="btn_ok">확인</string>
     <string name="btn_cancel">취소</string>
+    <string name="btn_refresh">새로고침</string>
     <string name="btn_go_setting">설정으로</string>
 
     <!-- Popup -->
     <string name="permission_location_title">위치 권한 알림</string>
     <string name="permission_location_message">현재 위치를 사용하려면 설정에서 위치 권한을 허용해주세요</string>
+
+    <!-- MapCategory -->
+    <string name="map_category_oil">주유소</string>
+    <string name="map_category_hospital">병원</string>
+    <string name="map_category_pharmacy">약국</string>
 </resources>
