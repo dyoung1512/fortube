@@ -12,7 +12,8 @@ class BaseApplication: Application() {
             modules(listOf(
                 apiModule,
                 prefModule,
-                vmModule
+                vmModule,
+                itemModule
             ))
         }
     }

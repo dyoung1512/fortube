@@ -14,11 +14,14 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.appbar.AppBarLayout
+import com.jdy.android.fortube.base.ItemBindingAdapter
 import com.jdy.android.fortube.base.PrefHelper
 import com.jdy.android.fortube.map.MapViewModel
 import com.jdy.android.fortube.map.MarkerMapView
-import kotlinx.android.synthetic.main.activity_main.*
+import io.reactivex.Flowable
+import kotlinx.android.synthetic.main.activity_fortube.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -29,10 +32,11 @@ class FortubeActivity: AppCompatActivity() {
     }
     private val mMapViewModel: MapViewModel by viewModel()
     private val mPrefHelper: PrefHelper by inject()
+    private val mItemBindingAdapter: ItemBindingAdapter by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_fortube)
 
         init()
 
@@ -54,6 +58,8 @@ class FortubeActivity: AppCompatActivity() {
             MapViewModel.STATE_CATEGORY_OIL
                 or MapViewModel.STATE_CATEGORY_HOSPITAL
                 or MapViewModel.STATE_CATEGORY_PHARMACY)
+        marker_list.layoutManager = LinearLayoutManager(this)
+        marker_list.adapter = mItemBindingAdapter
     }
 
     private fun setUIEventListener() {
@@ -102,7 +108,12 @@ class FortubeActivity: AppCompatActivity() {
     private fun observeMapData() {
         mMapViewModel.mapData.observe(this, Observer { mapModel ->
             map_view.addMarkerList(mapModel.documents)
-
+            val items = Flowable.fromIterable(mapModel.documents)
+                .map { ItemBindingAdapter.BindingItem(it, R.layout.activity_fortube_list_item) }
+                .toList()
+                .blockingGet()
+            mItemBindingAdapter.setItems(items)
+            mItemBindingAdapter.notifyDataSetChanged()
         })
     }
 

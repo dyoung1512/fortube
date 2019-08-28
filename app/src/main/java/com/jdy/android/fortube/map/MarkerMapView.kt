@@ -48,11 +48,7 @@ class MarkerMapView(context: Context, attrs: AttributeSet): MapView(context, att
     }
 
     fun refresh() {
-        if (!mMapViewModel.isCategoryEmpty()) {
-            mMapViewModel.searchMapAreas(mapCenterPoint.mapPointGeoCoord)
-        } else if (poiItems.isNotEmpty()) {
-            removeAllPOIItems()
-        }
+        mMapViewModel.searchMapAreas(mapCenterPoint.mapPointGeoCoord)
     }
 
     fun addMarkerList(documents: List<MapDocument>) {

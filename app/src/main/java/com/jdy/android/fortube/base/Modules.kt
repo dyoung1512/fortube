@@ -54,3 +54,6 @@ val prefModule = module {
 val vmModule = module {
     viewModel { MapViewModel(get()) }
 }
+val itemModule = module {
+    factory { ItemBindingAdapter() }
+}

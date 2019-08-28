@@ -13,23 +13,14 @@
         <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_scrollFlags="scroll|enterAlways|snap">
+                app:layout_scrollFlags="scroll|enterAlwaysCollapsed">
 
             <com.jdy.android.fortube.map.MarkerMapView
                     android:id="@+id/map_view"
                     android:layout_width="match_parent"
                     android:layout_height="300dp"
                     app:layout_collapseMode="parallax"
-                    app:layout_collapseParallaxMultiplier="1"/>
-
-            <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/map_refresh_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:layout_gravity="center_horizontal"
-                    android:visibility="gone"
-                    style="@style/MapCategoryRefreshBtn"/>
+                    app:layout_collapseParallaxMultiplier="0.5"/>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="wrap_content"
@@ -67,6 +58,17 @@
                         app:layout_constraintEnd_toStartOf="@+id/category_hospital"
                         app:layout_constraintBottom_toBottomOf="parent"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/map_refresh_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_gravity="center_horizontal"
+                    android:visibility="gone"
+                    style="@style/MapCategoryRefreshBtn"
+                    app:layout_collapseMode="parallax"
+                    app:layout_collapseParallaxMultiplier="1"/>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 

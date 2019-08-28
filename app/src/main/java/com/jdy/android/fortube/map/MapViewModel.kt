@@ -23,6 +23,13 @@ class MapViewModel(private val mMapService: MapService): ViewModel() {
     var mapData = MutableLiveData<MapModel>()
 
     fun searchMapAreas(geoCoord: MapPoint.GeoCoordinate) {
+        if (isCategoryEmpty()) {
+            mapData.value?.run {
+                documents.clear()
+                mapData.postValue(this)
+            }
+            return
+        }
         mDisposable.add(mMapService.searchMapAreas(
             getCategories(),
             geoCoord.longitude.toString(),
@@ -62,7 +69,7 @@ class MapViewModel(private val mMapService: MapService): ViewModel() {
             }
         }.toString()
     }
-    fun isCategoryEmpty() = mCategoryState == STATE_CATEGORY_EMPTY
+    private fun isCategoryEmpty() = mCategoryState == STATE_CATEGORY_EMPTY
     private fun hasCategoryOil() = mCategoryState and STATE_CATEGORY_OIL == STATE_CATEGORY_OIL
     private fun hasCategoryHospital() = mCategoryState and STATE_CATEGORY_HOSPITAL == STATE_CATEGORY_HOSPITAL
     private fun hasCategoryPharmacy() = mCategoryState and STATE_CATEGORY_PHARMACY == STATE_CATEGORY_PHARMACY
