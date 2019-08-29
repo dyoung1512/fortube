@@ -21,6 +21,7 @@ class MapViewModel(private val mMapService: MapService): ViewModel() {
     private var mDisposable = CompositeDisposable()
 
     var mapData = MutableLiveData<MapModel>()
+    var mapItemSelect = MutableLiveData<MapDocument>()
 
     fun searchMapAreas(geoCoord: MapPoint.GeoCoordinate) {
         if (isCategoryEmpty()) {
@@ -41,6 +42,10 @@ class MapViewModel(private val mMapService: MapService): ViewModel() {
                 mapData::postValue,
                 Throwable::printStackTrace
             ))
+    }
+
+    fun onSelectMapItem(document: MapDocument) {
+        mapItemSelect.value = document
     }
 
     fun setCategoryState(state: Int) { mCategoryState = state }

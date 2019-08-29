@@ -14,13 +14,14 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.appbar.AppBarLayout
 import com.jdy.android.fortube.base.ItemBindingAdapter
 import com.jdy.android.fortube.base.PrefHelper
 import com.jdy.android.fortube.map.MapViewModel
 import com.jdy.android.fortube.map.MarkerMapView
-import io.reactivex.Flowable
 import kotlinx.android.synthetic.main.activity_fortube.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -32,7 +33,7 @@ class FortubeActivity: AppCompatActivity() {
     }
     private val mMapViewModel: MapViewModel by viewModel()
     private val mPrefHelper: PrefHelper by inject()
-    private val mItemBindingAdapter: ItemBindingAdapter by inject()
+    private val mAdapter: ItemBindingAdapter by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +43,7 @@ class FortubeActivity: AppCompatActivity() {
 
         setUIEventListener()
 
-        observeMapData()
+        observeMapViewModel()
 
         if (checkLocationPermissions()) {
             map_view.setCurrentLocation()
@@ -59,7 +60,9 @@ class FortubeActivity: AppCompatActivity() {
                 or MapViewModel.STATE_CATEGORY_HOSPITAL
                 or MapViewModel.STATE_CATEGORY_PHARMACY)
         marker_list.layoutManager = LinearLayoutManager(this)
-        marker_list.adapter = mItemBindingAdapter
+        marker_list.adapter = mAdapter
+        marker_list.itemAnimator = DefaultItemAnimator()
+        marker_list.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
     }
 
     private fun setUIEventListener() {
@@ -105,15 +108,14 @@ class FortubeActivity: AppCompatActivity() {
         })
     }
 
-    private fun observeMapData() {
+    private fun observeMapViewModel() {
         mMapViewModel.mapData.observe(this, Observer { mapModel ->
             map_view.addMarkerList(mapModel.documents)
-            val items = Flowable.fromIterable(mapModel.documents)
-                .map { ItemBindingAdapter.BindingItem(it, R.layout.activity_fortube_list_item) }
-                .toList()
-                .blockingGet()
-            mItemBindingAdapter.setItems(items)
-            mItemBindingAdapter.notifyDataSetChanged()
+            mAdapter.setItems(mapModel.documents, R.layout.activity_fortube_list_item, mMapViewModel)
+            mAdapter.notifyDataSetChanged()
+        })
+        mMapViewModel.mapItemSelect.observe(this, Observer { document ->
+            map_view.selectMarker(document)
         })
     }
 

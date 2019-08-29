@@ -47,6 +47,14 @@ class MarkerMapView(context: Context, attrs: AttributeSet): MapView(context, att
         currentLocationTrackingMode = CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
     }
 
+    fun selectMarker(document: MapDocument) {
+        val markers = findPOIItemByName(document.placeName)
+        if (markers.isNotEmpty()) {
+            selectPOIItem(markers[0], true)
+        }
+        setMapCenterPoint(MapPoint.mapPointWithGeoCoord(document.y.toDouble(), document.x.toDouble()), true)
+    }
+
     fun refresh() {
         mMapViewModel.searchMapAreas(mapCenterPoint.mapPointGeoCoord)
     }

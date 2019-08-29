@@ -13,12 +13,13 @@
         <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_scrollFlags="scroll|enterAlwaysCollapsed">
+                android:minHeight="@dimen/marker_map_min_height"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <com.jdy.android.fortube.map.MarkerMapView
                     android:id="@+id/map_view"
                     android:layout_width="match_parent"
-                    android:layout_height="300dp"
+                    android:layout_height="@dimen/marker_map_height"
                     app:layout_collapseMode="parallax"
                     app:layout_collapseParallaxMultiplier="0.5"/>
 
