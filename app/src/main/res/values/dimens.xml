@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="marker_map_height">300dp</dimen>
+    <dimen name="marker_map_min_height">80dp</dimen>
+    <dimen name="marker_map_list_more_btn_height">48dp</dimen>
+</resources>
