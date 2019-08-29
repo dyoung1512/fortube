@@ -10,12 +10,14 @@ import net.daum.mf.map.api.MapView
 
 class MarkerMapView(context: Context, attrs: AttributeSet): MapView(context, attrs), MarkerMapViewEventListener {
     companion object {
-        const val MAP_CURRENT_LOCATION_DIFF = 50   // meters
+        const val MAP_CURRENT_LOCATION_DIFF = 100   // meters
+        const val MAP_CENTER_MOVED_TIME_DIFF = 300   // milliseconds
     }
     private lateinit var mMapViewModel: MapViewModel
     private var mAllowMapRefreshListener: OnAllowMapRefreshListener? = null
-    private var mIsCenterPointMoved = false
+    private var mIsAllowedShowRefresh = false
     private var mLastLocation = Location("")
+    private var mLastCenterMovedTime = System.currentTimeMillis()
 
     @FunctionalInterface
     interface OnAllowMapRefreshListener {
@@ -56,10 +58,15 @@ class MarkerMapView(context: Context, attrs: AttributeSet): MapView(context, att
     }
 
     fun refresh() {
-        mMapViewModel.searchMapAreas(mapCenterPoint.mapPointGeoCoord)
+        mIsAllowedShowRefresh = false
+        mMapViewModel.refreshMapAreas(mapCenterPoint.mapPointGeoCoord)
     }
 
-    fun addMarkerList(documents: List<MapDocument>) {
+    fun update() {
+        mMapViewModel.updateMapAreas()
+    }
+
+    fun setMarkerList(documents: List<MapDocument>) {
         removeAllPOIItems()
         for (document in documents) {
             addPOIItem(convertDocumentToMapPOIItem(document))
@@ -77,37 +84,42 @@ class MarkerMapView(context: Context, attrs: AttributeSet): MapView(context, att
             mapPoint = MapPoint.mapPointWithGeoCoord(document.y.toDouble(), document.x.toDouble())
             markerType = MapPOIItem.MarkerType.BluePin
             selectedMarkerType = MapPOIItem.MarkerType.RedPin
-            showAnimationType = MapPOIItem.ShowAnimationType.SpringFromGround
             isShowDisclosureButtonOnCalloutBalloon = false
         }
     }
 
-    override fun onMapViewInitialized(mapView: MapView) {
-        mLastLocation.latitude = mapCenterPoint.mapPointGeoCoord.latitude
-        mLastLocation.longitude = mapCenterPoint.mapPointGeoCoord.longitude
+    private fun isAllowedShowRefresh(point: MapPoint): Boolean {
+        if (mIsAllowedShowRefresh) return false
+        val curLocation = Location("").apply {
+            latitude = point.mapPointGeoCoord.latitude
+            longitude = point.mapPointGeoCoord.longitude
+        }
+        if (mLastLocation.distanceTo(curLocation) > MAP_CURRENT_LOCATION_DIFF) {
+            mLastLocation = curLocation
+            mIsAllowedShowRefresh = true
+            return true
+        }
+        return false
     }
 
     override fun onMapViewMoveFinished(mapView: MapView, point: MapPoint) {
         if (poiItems.isEmpty()) {
             refresh()
         }
-        val curLocation = Location("").apply {
-            latitude = point.mapPointGeoCoord.latitude
-            longitude = point.mapPointGeoCoord.longitude
-        }
-        if (mIsCenterPointMoved && mLastLocation.distanceTo(curLocation) > MAP_CURRENT_LOCATION_DIFF) {
-            mIsCenterPointMoved = false
-            mLastLocation = curLocation
-            mAllowMapRefreshListener?.allowRefresh()
-        }
     }
 
     override fun onMapViewCenterPointMoved(mapView: MapView, point: MapPoint) {
-        mIsCenterPointMoved = true
+        if (mIsAllowedShowRefresh) return
+        val curCenterMovedTime = System.currentTimeMillis()
+        if (curCenterMovedTime - mLastCenterMovedTime > MAP_CENTER_MOVED_TIME_DIFF) {
+            mLastCenterMovedTime = curCenterMovedTime
+            if (isAllowedShowRefresh(point)) {
+                mAllowMapRefreshListener?.allowRefresh()
+            }
+        }
     }
 
     override fun onPOIItemSelected(mapView: MapView, item: MapPOIItem) {
-        mIsCenterPointMoved = true
         setMapCenterPoint(item.mapPoint, true)
     }
 

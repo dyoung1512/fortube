@@ -90,6 +90,9 @@ class FortubeActivity: AppCompatActivity() {
             mMapViewModel.setCategoryPharmacy(it.isSelected)
             map_view.refresh()
         }
+        marker_list_more_btn.setOnClickListener {
+            map_view.update()
+        }
         disableAppbarBehavior()
     }
 
@@ -110,7 +113,13 @@ class FortubeActivity: AppCompatActivity() {
 
     private fun observeMapViewModel() {
         mMapViewModel.mapData.observe(this, Observer { mapModel ->
-            map_view.addMarkerList(mapModel.documents)
+            marker_list_more_btn.isEnabled = !mapModel.meta.isEnd
+            if (marker_list_more_btn.isEnabled) {
+                marker_list_more_btn_cover.visibility = View.GONE
+            } else {
+                marker_list_more_btn_cover.visibility = View.VISIBLE
+            }
+            map_view.setMarkerList(mapModel.documents)
             mAdapter.setItems(mapModel.documents, R.layout.activity_fortube_list_item, mMapViewModel)
             mAdapter.notifyDataSetChanged()
         })

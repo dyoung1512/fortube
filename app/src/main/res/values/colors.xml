@@ -7,4 +7,5 @@
     <color name="mapCategoryText">#80d81b60</color>
     <color name="mapCategoryTextBg">#80ffffff</color>
     <color name="mapCategoryTextBorder">#e0e0e0</color>
+    <color name="mapMarkerListMoreBtnBgCover">#80b1b1b1</color>
 </resources>

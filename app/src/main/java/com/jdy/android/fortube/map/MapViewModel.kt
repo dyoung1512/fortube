@@ -9,6 +9,7 @@ import net.daum.mf.map.api.MapPoint
 
 class MapViewModel(private val mMapService: MapService): ViewModel() {
     companion object {
+        const val MAP_LOCATION_SEARCH_RADIUS = 2000   // meters
         const val CD_CATEGORY_OIL = "OL7"
         const val CD_CATEGORY_HOSPITAL = "HP8"
         const val CD_CATEGORY_PHARMACY = "PM9"
@@ -19,11 +20,14 @@ class MapViewModel(private val mMapService: MapService): ViewModel() {
     }
     private var mCategoryState = STATE_CATEGORY_EMPTY
     private var mDisposable = CompositeDisposable()
+    private var mLastGeoCoord: MapPoint.GeoCoordinate? = null
 
+    var page = 1
     var mapData = MutableLiveData<MapModel>()
     var mapItemSelect = MutableLiveData<MapDocument>()
 
-    fun searchMapAreas(geoCoord: MapPoint.GeoCoordinate) {
+    fun refreshMapAreas(geoCoord: MapPoint.GeoCoordinate) {
+        mLastGeoCoord = geoCoord
         if (isCategoryEmpty()) {
             mapData.value?.run {
                 documents.clear()
@@ -31,15 +35,48 @@ class MapViewModel(private val mMapService: MapService): ViewModel() {
             }
             return
         }
+        page = 1
         mDisposable.add(mMapService.searchMapAreas(
             getCategories(),
             geoCoord.longitude.toString(),
             geoCoord.latitude.toString(),
-            2000,
-            1)
+            MAP_LOCATION_SEARCH_RADIUS,
+            page)
             .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.trampoline())
             .subscribe(
                 mapData::postValue,
+                Throwable::printStackTrace
+            ))
+    }
+
+    fun updateMapAreas() {
+        if (isCategoryEmpty() || mLastGeoCoord == null) {
+            mapData.value?.run {
+                documents.clear()
+                mapData.postValue(this)
+            }
+            return
+        }
+        page += 1
+        mDisposable.add(mMapService.searchMapAreas(
+            getCategories(),
+            mLastGeoCoord!!.longitude.toString(),
+            mLastGeoCoord!!.latitude.toString(),
+            MAP_LOCATION_SEARCH_RADIUS,
+            page)
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.trampoline())
+            .subscribe(
+                { mapModel ->
+                    mapData.postValue(mapModel.let { newModel ->
+                        mapData.value?.documents?.run {
+                            addAll(newModel.documents)
+                            newModel.documents = this
+                            return@let newModel
+                        } ?: newModel
+                    })
+                },
                 Throwable::printStackTrace
             ))
     }

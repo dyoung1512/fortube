@@ -6,7 +6,7 @@ import net.daum.mf.map.api.MapView
 
 interface MarkerMapViewEventListener: MapView.MapViewEventListener, MapView.POIItemEventListener, MapView.CurrentLocationEventListener {
     override fun onMapViewDoubleTapped(mapView: MapView?, point: MapPoint?) {}
-//    override fun onMapViewInitialized(mapView: MapView?) {}
+    override fun onMapViewInitialized(mapView: MapView?) {}
     override fun onMapViewDragStarted(mapView: MapView?, point: MapPoint?) {}
 //    override fun onMapViewMoveFinished(mapView: MapView?, point: MapPoint?) {}
 //    override fun onMapViewCenterPointMoved(mapView: MapView?, point: MapPoint?) {}

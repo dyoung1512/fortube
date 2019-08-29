@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 open class ItemBindingAdapter: RecyclerView.Adapter<ItemBindingHolder>() {
     open class BindingItem(val item: Item, val layout: Int, @Nullable var vm: ViewModel? = null)
 
-    protected val items = ArrayList<BindingItem>()
+    val items = ArrayList<BindingItem>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemBindingHolder {
         val binding: ViewDataBinding = DataBindingUtil.inflate(
